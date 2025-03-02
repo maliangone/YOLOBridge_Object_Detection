@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  model_server:
+    build: .
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+    environment:
+      - LABEL_STUDIO_HOST=http://localhost:8080 # Need to update host for new instances of label studio 
+      - LABEL_STUDIO_API_KEY=1184f31fdc340cf5837214749627a3c134db7a28 # Need to update api key for new instances of label studio. Can be found in label studio settings.
+      - TZ=Asia/Shanghai
+    ports:
+      - 5000:9090 # Need to update port, eg. 5000,5001,5002,5003,5004.. for new instances of label studio **backend**. 
+    volumes:
+      - .:/app/
+    shm_size: '16gb' # Added larger shared memory for deep learning
+    networks:
+      - ml_network
+    restart: always
+
+networks:
+  ml_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16 # Need to update subnet for new instances of label studio **backend**. To avoid conflict with other networks.
